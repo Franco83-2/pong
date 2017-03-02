@@ -1,24 +1,21 @@
-<html>
-
-<canvas id="gameCanvas" width="800" height="450"></canvas>
-
-<script>
 var canvas;
 var canvasContext;
-var ballX = 50;
-var ballY = 50;
-var ballSpeedX = 5;
-var ballSpeedY = 5;
+var donkeyX = 50;
+var donkeyY = 50;
+var donkeySpeedX = 5;
+var donkeySpeedY = 5;
 var player1Score = 0;
 var player2Score = 0;
 const WINNING_SCORE = 5;
 var showingWinScreen = false;
 var paddle1Y = 250;
 var paddle2Y = 250;
-const PADDLE_THICKNESS = 10;
+const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 100;
+var donkey = new Image()
+donkey.src = './donkey.png'
 
-function calculateMousePos(evt) {
+function mousePosition(evt) {
 	var rect = canvas.getBoundingClientRect();
 	var root = document.documentElement;
 	var mouseX = evt.clientX - rect.left - root.scrollLeft;
@@ -46,26 +43,26 @@ window.onload = function() {
 	canvas.addEventListener('mousedown', handleMouseClick);
 	canvas.addEventListener('mousemove',
 		function(evt) {
-			var mousePos = calculateMousePos(evt);
+			var mousePos = mousePosition(evt);
 			paddle1Y = mousePos.y - (PADDLE_HEIGHT/2);
 		});
 }
-function ballReset() {
+function donkeyReset() {
 	if(player1Score >= WINNING_SCORE ||
 		player2Score >= WINNING_SCORE) {
 		showingWinScreen = true;
 	}
-	ballSpeedX = -ballSpeedX;
-	ballSpeedY = 5;
-	ballX = canvas.width/2;
-	ballY = canvas.height/2;
+	donkeySpeedX = -donkeySpeedX;
+	donkeySpeedY = 5;
+	donkeyX = canvas.width/2;
+	donkeyY = canvas.height/2;
 }
 function computerMovement() {
 	var paddle2YCenter = paddle2Y + (PADDLE_HEIGHT/2);
-	if(paddle2YCenter < ballY - 35) {
+	if(paddle2YCenter < donkeyY - 35) {
 		paddle2Y = paddle2Y + 5;
 	}
-	else if(paddle2YCenter > ballY + 35) {
+	else if(paddle2YCenter > donkeyY + 35) {
 		paddle2Y = paddle2Y - 5;
 	}
 }
@@ -74,39 +71,39 @@ function moveEverything() {
 		return;
 	}
 	computerMovement();
-	ballX = ballX + ballSpeedX;
-	ballY = ballY + ballSpeedY;
-	if(ballX < 30) {
-		if(ballY > paddle1Y &&
-			ballY < paddle1Y+PADDLE_HEIGHT) {
-			ballSpeedX = -ballSpeedX;
-			var deltaY = ballY
+	donkeyX = donkeyX + donkeySpeedX;
+	donkeyY = donkeyY + donkeySpeedY;
+	if(donkeyX < 30) {
+		if(donkeyY > paddle1Y &&
+			donkeyY < paddle1Y+PADDLE_HEIGHT) {
+			donkeySpeedX = -donkeySpeedX;
+			var deltaY = donkeyY
 				-(paddle1Y+PADDLE_HEIGHT/2);
-			ballSpeedY = deltaY * 0.2;
+			donkeySpeedY = deltaY * 0.2;
 		}
 		else {
-			player2Score++; // must be BEFORE ballReset()
-			ballReset();
+			player2Score++; // must be BEFORE donkeyReset()
+			donkeyReset();
 		}
 	}
-	if(ballX > 770) {
-		if(ballY > paddle2Y &&
-			ballY < paddle2Y+PADDLE_HEIGHT) {
-			ballSpeedX = -ballSpeedX;
-			var deltaY = ballY
+	if(donkeyX+50 > 770) {
+		if(donkeyY > paddle2Y &&
+			donkeyY < paddle2Y+PADDLE_HEIGHT) {
+			donkeySpeedX = -donkeySpeedX;
+			var deltaY = donkeyY
 				-(paddle2Y+PADDLE_HEIGHT/2);
-			ballSpeedY = deltaY * 0.2;
+			donkeySpeedY = deltaY * 0.2;
 		}
 		else {
-			player1Score++; // must be BEFORE ballReset()
-			ballReset();
+			player1Score++; // must be BEFORE donkeyReset()
+			donkeyReset();
 		}
 	}
-	if(ballY < 0) {
-		ballSpeedY = -ballSpeedY;
+	if(donkeyY < 0) {
+		donkeySpeedY = -donkeySpeedY;
 	}
-	if(ballY > canvas.height) {
-		ballSpeedY = -ballSpeedY;
+	if(donkeyY > canvas.height-50) {
+		donkeySpeedY = -donkeySpeedY;
 	}
 }
 function drawNet() {
@@ -129,24 +126,15 @@ function drawEverything() {
 	}
 	drawNet();
 	// this is left player paddle
-	colorRect(15,paddle1Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
+	colorRect(15,paddle1Y,PADDLE_WIDTH,PADDLE_HEIGHT,'white');
 	// this is right computer paddle
-	colorRect(canvas.width-PADDLE_THICKNESS-15,paddle2Y,PADDLE_THICKNESS,PADDLE_HEIGHT,'white');
-	// next line draws the ball
-	colorCircle(ballX, ballY, 10, 'white');
+	colorRect(canvas.width-PADDLE_WIDTH-15,paddle2Y,PADDLE_WIDTH,PADDLE_HEIGHT,'white');
+	// next line draws the donkey
+	canvasContext.drawImage(donkey, donkeyX, donkeyY, 50, 50)
 	canvasContext.fillText(player1Score, 100, 100);
 	canvasContext.fillText(player2Score, canvas.width-100, 100);
-}
-function colorCircle(centerX, centerY, radius, drawColor) {
-	canvasContext.fillStyle = drawColor;
-	canvasContext.beginPath();
-	canvasContext.arc(centerX, centerY, radius, 0,Math.PI*2,true);
-	canvasContext.fill();
 }
 function colorRect(leftX,topY, width,height, drawColor) {
 	canvasContext.fillStyle = drawColor;
 	canvasContext.fillRect(leftX,topY, width,height);
 }
-</script>
-
-</html>
